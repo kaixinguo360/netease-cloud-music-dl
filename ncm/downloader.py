@@ -85,7 +85,8 @@ def download_file(file_url, file_name, folder):
         os.makedirs(folder)
     file_path = os.path.join(folder, file_name)
 
-    response = requests.get(file_url, stream=True)
+    headers = { 'X-Requested-With': 'XMLHttpRequest' };
+    response = requests.get(file_url, stream=True, headers=headers)
     length = int(response.headers.get('Content-Length'))
 
     # TODO need to improve whether the file exists

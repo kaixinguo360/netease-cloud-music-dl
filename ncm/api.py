@@ -77,6 +77,11 @@ class CloudApi(object):
         params = {'ids': [song_id], 'br': bit_rate, 'csrf_token': csrf}
         result = self.post_request(url, params)
         song_url = result['data'][0]['url']
+
+        # Force download copyrighted songs
+        if song_url is None:
+            song_url = 'https://music.163.com/song/media/outer/url?id={}'.format(song_id)
+
         return song_url
 
     def get_hot_songs(self, artist_id):
