@@ -55,9 +55,13 @@ def download_song_by_song(song, download_folder, sub_folder=True):
     if song_url is None:
         print('Song <<{}>> is not available due to copyright issue!'.format(song_name))
         return
-    is_already_download = download_file(song_url, song_file_name, song_download_folder)
-    if is_already_download:
-        print('Mp3 file already download:', song_file_name)
+    try:
+        is_already_download = download_file(song_url, song_file_name, song_download_folder)
+        if is_already_download:
+            print('Mp3 file already download:', song_file_name)
+            return
+    except Exception:
+        print('Song {} <<{}>> downloading failed, skip'.format(song_id, song_name))
         return
 
     # download cover
