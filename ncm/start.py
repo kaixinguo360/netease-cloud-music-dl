@@ -9,6 +9,7 @@ from ncm.downloader import get_song_info_by_id
 from ncm.downloader import download_song_by_id
 from ncm.downloader import download_song_by_song
 from ncm.downloader import format_string
+from ncm.constants import headers
 
 # load the config first
 config.load_config()
@@ -32,6 +33,13 @@ def download_album_songs(album_id):
     for i, song in enumerate(songs):
         print('{}: {}'.format(i + 1, song['name']))
         download_song_by_song(song, folder_path, False)
+
+
+def download_program(program_id):
+    program = api.get_program(program_id)
+    folder_name = format_string(program['dj']['brand']) + ' - program'
+    folder_path = os.path.join(config.DOWNLOAD_DIR, folder_name)
+    download_song_by_song(program, folder_path, False, True)
 
 
 def download_playlist_songs(playlist_id):
@@ -62,9 +70,15 @@ def main():
                         help='Download an artist hot 50 songs by artist_id')
     parser.add_argument('-a', metavar='album_id', dest='album_id',
                         help='Download an album all songs by album_id')
+    parser.add_argument('-dj', metavar='program_id', dest='program_id',
+                        help='Download a program by program_id')
     parser.add_argument('-p', metavar='playlist_id', dest='playlist_id',
                         help='Download a playlist all songs by playlist_id')
+    parser.add_argument('-ua', metavar='user_agent', dest='user_agent',
+                        help='Specify the User-Agent to be used when downloading')
     args = parser.parse_args()
+    if args.user_agent:
+        headers.update({'User-Agent':args.user_agent})
     if args.song_id:
         download_song_by_id(get_parse_id(args.song_id), config.DOWNLOAD_DIR)
     elif args.song_ids:
@@ -76,7 +90,10 @@ def main():
         download_album_songs(get_parse_id(args.album_id))
     elif args.playlist_id:
         download_playlist_songs(get_parse_id(args.playlist_id))
+    elif args.program_id:
+        download_program(get_parse_id(args.program_id))
 
 
 if __name__ == '__main__':
     main()
+    

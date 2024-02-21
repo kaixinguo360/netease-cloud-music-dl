@@ -18,7 +18,7 @@ def resize_img(file_path, max_size=(640, 640), quality=90):
         img.save(file_path, quality=quality)
 
 
-def add_metadata_to_song(file_path, cover_path, song):
+def add_metadata_to_song(file_path, cover_path, song, is_program=False):
     # If no ID3 tags in mp3 file
     try:
         audio = MP3(file_path, ID3=ID3)
@@ -52,10 +52,14 @@ def add_metadata_to_song(file_path, cover_path, song):
         )
     )
     # add artist name
+    if is_program:
+        art_name = song['dj']['nickname']
+    else:
+        art_name = song['artists'][0]['name']
     id3.add(
         TPE1(
             encoding=3,
-            text=song['artists'][0]['name']
+            text=art_name
         )
     )
     # add song name
@@ -66,17 +70,23 @@ def add_metadata_to_song(file_path, cover_path, song):
         )
     )
     # add album name
+    if is_program:
+        album_name = song['dj']['brand']
+    else:
+        album_name = song['album']['name']
     id3.add(
         TALB(
             encoding=3,
-            text=song['album']['name']
+            text=album_name
         )
     )
-    #add track no
-    id3.add(
-        TRCK(
-            encoding=3,
-            text="%s/%s" %(song['no'],song['album']['size'])
+    # add track no
+    if not is_program:
+        id3.add(
+            TRCK(
+                encoding=3,
+                text="%s/%s" % (song['no'], song['album']['size'])
+            )
         )
-    )
+    # programs doesn't have a valid album info.
     id3.save(v2_version=3)
